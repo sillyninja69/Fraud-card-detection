@@ -15,10 +15,14 @@ if not os.path.exists("creditcard.csv"):
     gdown.download(url, "creditcard.csv", quiet=False)
 
 df = pd.read_csv("creditcard.csv")
+print(df.head())
+print(df.columns)
 
 # Separate features and target
 X = df.drop("Class", axis=1)
 y = df["Class"]
+
+
 
 
 # Handle class imbalance using undersampling
