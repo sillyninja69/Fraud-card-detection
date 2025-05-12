@@ -11,11 +11,16 @@ def load_dataset():
     dataset_path = os.path.join(os.path.dirname(__file__), "creditcard.csv")
     df = pd.read_csv(dataset_path)
 
-    if "Class" not in df.columns:
-        raise ValueError("The dataset does not contain a 'Class' column.")
+   if "Class" in df.columns:
+    target_column = "Class"
+elif "class" in df.columns:
+    target_column = "class"
+else:
+    raise ValueError("The dataset does not contain a 'Class' or 'class' column.")
 
-    X = df.drop("Class", axis=1)
-    y = df["Class"]
+X = df.drop(target_column, axis=1)
+y = df[target_column]
+
 
     return X, y
 
