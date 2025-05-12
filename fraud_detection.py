@@ -1,43 +1,34 @@
 import pandas as pd
-import numpy as np
 import joblib
-import os
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
 
-# Load dataset safely
 def load_dataset():
+    try:
+        df = pd.read_csv("creditcard.csv")  # update path if needed
+    except FileNotFoundError:
+        raise FileNotFoundError("Dataset file 'creditcard.csv' not found. Please check the file path.")
 
-df = pd.read_csv("./data/creditcard.csv")  # or the correct relative path
-
-    # Handle both 'Class' and 'class' column names
-    if "Class" in df.columns:
-        target_column = "Class"
-    elif "class" in df.columns:
-        target_column = "class"
-    else:
+    # Handle common casing issues
+    colnames = [col.lower() for col in df.columns]
+    if 'class' not in colnames:
         raise ValueError("The dataset does not contain a 'Class' or 'class' column.")
 
-    X = df.drop(target_column, axis=1)
-    y = df[target_column]
+    # Normalize the column name
+    df.columns = [col.lower() for col in df.columns]
+
+    X = df.drop("class", axis=1)
+    y = df["class"]
     return X, y
 
-# Train and save the model
 def train_model():
     X, y = load_dataset()
-
-    # Standardize the features
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-    # Train/test split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_scaled, y, test_size=0.2, random_state=42, stratify=y
-    )
-
-    # Train logistic regression
-    model = LogisticRegression(max_iter=1000)
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
 
     # Save model and scaler
@@ -46,24 +37,19 @@ def train_model():
 
     return model, scaler
 
-# Load model and scaler
 def load_model():
-    model_path = os.path.join(os.path.dirname(__file__), "model.pkl")
-    scaler_path = os.path.join(os.path.dirname(__file__), "scaler.pkl")
-
-    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-        print("Model or scaler not found. Training a new one...")
+    try:
+        model = joblib.load("model.pkl")
+        scaler = joblib.load("scaler.pkl")
+    except FileNotFoundError:
         return train_model()
 
-    model = joblib.load(model_path)
-    scaler = joblib.load(scaler_path)
     return model, scaler
 
-# Predict transaction class
-def predict_transaction(input_data, model, scaler):
-    input_array = np.array(input_data).reshape(1, -1)
-    input_scaled = scaler.transform(input_array)
+def predict_transaction(model, scaler, input_data):
+    input_scaled = scaler.transform([input_data])
     prediction = model.predict(input_scaled)
     return prediction[0]
+
 
 
