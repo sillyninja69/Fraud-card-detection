@@ -4,22 +4,25 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 
+
 def load_dataset():
-    try:
-        df = pd.read_csv("creditcard.csv")  # update path if needed
-    except FileNotFoundError:
-        raise FileNotFoundError("Dataset file 'creditcard.csv' not found. Please check the file path.")
-
-    # Handle common casing issues
-    colnames = [col.lower() for col in df.columns]
-    if 'class' not in colnames:
-        raise ValueError("The dataset does not contain a 'Class' or 'class' column.")
-
-    # Normalize the column name
-    df.columns = [col.lower() for col in df.columns]
-
-    X = df.drop("class", axis=1)
-    y = df["class"]
+    df = pd.read_csv('your_dataset.csv')
+    
+    # Check for the column name, consider different possible names
+    if 'Class' not in df.columns and 'class' not in df.columns and 'target' not in df.columns:
+        raise ValueError("The dataset does not contain a 'Class', 'class', or 'target' column.")
+    
+    # Use the appropriate column as the target
+    if 'Class' in df.columns:
+        target_column = 'Class'
+    elif 'class' in df.columns:
+        target_column = 'class'
+    else:
+        target_column = 'target'  # or whichever name is in your dataset
+    
+    X = df.drop(columns=[target_column])
+    y = df[target_column]
+    
     return X, y
 
 def train_model():
