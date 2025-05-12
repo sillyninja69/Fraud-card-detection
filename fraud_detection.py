@@ -6,6 +6,7 @@ import gdown
 # Load dataset
 df = pd.read_csv("creditcard.csv")
 
+
 # Preprocess the data
 if "Class" in df.columns:
     X = df.drop("Class", axis=1)
