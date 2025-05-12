@@ -8,20 +8,18 @@ from sklearn.linear_model import LogisticRegression
 
 # Load dataset safely
 def load_dataset():
-    dataset_path = os.path.join(os.path.dirname(__file__), "creditcard.csv")
-    df = pd.read_csv(dataset_path)
+    df = pd.read_csv("creditcard.csv")
 
-   if "Class" in df.columns:
-    target_column = "Class"
-elif "class" in df.columns:
-    target_column = "class"
-else:
-    raise ValueError("The dataset does not contain a 'Class' or 'class' column.")
+    # Handle both 'Class' and 'class' column names
+    if "Class" in df.columns:
+        target_column = "Class"
+    elif "class" in df.columns:
+        target_column = "class"
+    else:
+        raise ValueError("The dataset does not contain a 'Class' or 'class' column.")
 
-X = df.drop(target_column, axis=1)
-y = df[target_column]
-
-
+    X = df.drop(target_column, axis=1)
+    y = df[target_column]
     return X, y
 
 # Train and save the model
