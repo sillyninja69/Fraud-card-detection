@@ -119,5 +119,4 @@ venv.bak/
 cython_debug/
 
 # Ignore model and data files
-fraud_model.pkl
-creditcard.csv
+
