@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
 import joblib
 
@@ -27,7 +28,11 @@ def process_data(df):
     X = df.drop("Class", axis=1)
     y = df["Class"]
     
-    return X, y
+    # Standardize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    return X_scaled, y, scaler
 
 # Train model
 def train_model(X, y):
@@ -48,28 +53,33 @@ def train_model(X, y):
     
     return model
 
-# Save the model
-def save_model(model, model_filename):
+# Save the model and scaler
+def save_model(model, scaler, model_filename, scaler_filename):
     try:
         joblib.dump(model, model_filename)
-        print(f"Model saved as {model_filename}")
+        joblib.dump(scaler, scaler_filename)
+        print(f"Model saved as {model_filename} and scaler saved as {scaler_filename}")
     except Exception as e:
         print(f"Error saving model: {e}")
 
-# Load the trained model
-def load_model(model_filename):
+# Load the trained model and scaler
+def load_model(model_filename="fraud_model.pkl", scaler_filename="scaler.pkl"):
     try:
         model = joblib.load(model_filename)
-        print(f"Model loaded from {model_filename}")
-        return model
+        scaler = joblib.load(scaler_filename)
+        print(f"Model and scaler loaded from {model_filename} and {scaler_filename}")
+        return model, scaler
     except Exception as e:
-        print(f"Error loading model: {e}")
+        print(f"Error loading model or scaler: {e}")
         raise
 
 # Make predictions
-def predict_transaction(model, transaction_data):
+def predict_transaction(model, scaler, transaction_data):
     try:
-        prediction = model.predict(transaction_data)
+        # Scale the transaction data
+        transaction_data_scaled = scaler.transform(transaction_data)
+        
+        prediction = model.predict(transaction_data_scaled)
         return prediction
     except Exception as e:
         print(f"Error making prediction: {e}")
@@ -81,13 +91,13 @@ def main():
     df = load_data("creditcard.csv")
     
     # Process data
-    X, y = process_data(df)
+    X, y, scaler = process_data(df)
     
     # Train model
     model = train_model(X, y)
     
-    # Save the model
-    save_model(model, "fraud_model.pkl")
+    # Save the model and scaler
+    save_model(model, scaler, "fraud_model.pkl", "scaler.pkl")
 
 if __name__ == "__main__":
     main()
