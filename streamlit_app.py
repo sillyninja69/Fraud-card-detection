@@ -31,12 +31,19 @@ def main():
         # Convert the input data to a DataFrame
         input_df = pd.DataFrame([input_data])  # Convert to DataFrame
 
+        # Debugging: Print the input DataFrame
+        st.write("Input DataFrame:", input_df)
+
         # Make prediction
-        prediction = detector.predict_fraud(input_df)
-        if prediction[0] == 1:
-            st.error("Transaction is likely fraudulent.")
-        else:
-            st.success("Transaction is legitimate.")
+        try:
+            prediction = detector.predict_fraud(input_df)
+            if prediction[0] == 1:
+                st.error("Transaction is likely fraudulent.")
+            else:
+                st.success("Transaction is legitimate.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
+
