@@ -8,7 +8,8 @@ from sklearn.linear_model import LogisticRegression
 
 # Load dataset safely
 def load_dataset():
-    df = pd.read_csv("creditcard.csv")
+
+df = pd.read_csv("./data/creditcard.csv")  # or the correct relative path
 
     # Handle both 'Class' and 'class' column names
     if "Class" in df.columns:
