@@ -1,33 +1,39 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 from fraud_detection import load_model, predict_transaction
 
-st.set_page_config(page_title="Fraud Detection App", layout="centered")
+# Set Streamlit page config
+st.set_page_config(page_title="Credit Card Fraud Detection", layout="wide")
 
-# Load trained model and scaler
-model, scaler = load_model()
-
+# Title and description
 st.title("💳 Credit Card Fraud Detection")
-st.write("Enter transaction details to check if it's fraudulent.")
+st.markdown("""
+This app uses a machine learning model to predict the probability of a credit card transaction being fraudulent.
+Please enter the transaction details below:
+""")
 
-# Input fields (you can modify based on your dataset features)
-# For this demo, let’s assume the dataset uses 30 anonymized features (V1 to V28, Time, Amount)
+# Load the model
+model = load_model()
 
-# We'll generate dummy inputs to match 30 columns for now
+# Input fields for features
+feature_names = [
+    'Time', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9',
+    'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18',
+    'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27',
+    'V28', 'Amount'
+]
+
 input_data = []
+cols = st.columns(3)
+for i, feature in enumerate(feature_names):
+    with cols[i % 3]:
+        val = st.number_input(f"{feature}", value=0.0, format="%.6f")
+        input_data.append(val)
 
-st.subheader("Enter Transaction Features")
-
-for i in range(30):  # The dataset has 30 features
-    val = st.number_input(f"Feature {i+1}", min_value=-100.0, max_value=100.0, value=0.0, step=0.1)
-    input_data.append(val)
-
-input_array = np.array(input_data).reshape(1, -1)
-
-if st.button("Check for Fraud"):
-    result = predict_transaction(model, scaler, input_array)
-    if result == 1:
-        st.error("⚠️ This transaction is predicted to be **Fraudulent**.")
+# Prediction
+if st.button("🔍 Predict"):
+    prediction = predict_transaction(np.array(input_data), model)
+    if prediction == 1:
+        st.error("⚠️ This transaction is predicted to be FRAUDULENT.")
     else:
-        st.success("✅ This transaction is predicted to be **Legitimate**.")
+        st.success("✅ This transaction is predicted to be LEGITIMATE.")
