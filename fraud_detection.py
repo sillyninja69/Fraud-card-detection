@@ -11,7 +11,7 @@ import os
 
 # Download the dataset 
 if not os.path.exists("creditcard.csv"):
-    url = "https://drive.google.com/file/d/1mD7t_kGWg9DThiEj5PJDxUuXlLFUYieC/view?usp=drive_link"  
+    url = "https://drive.google.com/uc?id=1mD7t_kGWg9DThiEj5PJDxUuXlLFUYieC"
     gdown.download(url, "creditcard.csv", quiet=False)
 
 df = pd.read_csv("creditcard.csv")
