@@ -47,5 +47,13 @@ def main():
     if st.button("Predict"):
         # Prepare the input data for prediction
         input_data = {
+            'V1': v1,
+            'V2': v2,
+            'V3': v3,
+            'V4': v4,
+            'V5': v5,
+            'V6': v6,
+            'V7': v7,
+            '
            
 
