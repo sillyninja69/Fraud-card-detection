@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from fraud_detection import FraudDetector  # Import the class
 
 def main():
@@ -26,6 +27,8 @@ def main():
             'Amount': amount
             # Add more fields as necessary
         }
+        
+        # Convert the input data to a DataFrame
         input_df = pd.DataFrame([input_data])  # Convert to DataFrame
 
         # Make prediction
