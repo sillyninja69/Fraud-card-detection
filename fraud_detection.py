@@ -1,65 +1,31 @@
 import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report
 import joblib
 import os
+import gdown
 
-try:
-    from imblearn.under_sampling import RandomUnderSampler
-except ImportError:
-    raise ImportError("imblearn package is not installed. Please install it with 'pip install imblearn'.")
+# Load dataset
+df = pd.read_csv("creditcard.csv")
 
-try:
-    import gdown
-except ImportError:
-    raise ImportError("gdown package is not installed. Please install it with 'pip install gdown'.")
-
-def main():
-    # Download the dataset 
-    if not os.path.exists("creditcard.csv"):
-        # Use the file ID for direct download with gdown
-        file_id = "1mD7t_kGWg9DThiEj5PJDxUuXlLFUYieC"
-        url = f"https://drive.google.com/uc?id={file_id}"
-        gdown.download(url, "creditcard.csv", quiet=False)
-
-    if not os.path.exists("creditcard.csv"):
-        raise FileNotFoundError("Failed to download creditcard.csv dataset.")
-
-    df = pd.read_csv("creditcard.csv")
-
-    # Separate features and target
+# Preprocess the data
+if "Class" in df.columns:
     X = df.drop("Class", axis=1)
     y = df["Class"]
+else:
+    raise ValueError("The dataset does not contain a 'Class' column.")
 
-    # Handle class imbalance using undersampling
-    rus = RandomUnderSampler(random_state=42)
-    X_resampled, y_resampled = rus.fit_resample(X, y)
+# Function to load the model
+def load_model():
+    model_filename = "model.pkl"
+    model_url = "https://drive.google.com/uc?id=YOUR_MODEL_FILE_ID"  # Replace with your actual file ID
 
-    # Train-test split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_resampled, y_resampled, test_size=0.2, random_state=42
-    )
+    if not os.path.exists(model_filename):
+        gdown.download(model_url, model_filename, quiet=False)
 
-    # Feature scaling
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
+    model = joblib.load(model_filename)
+    return model
 
-    # Train model
-    model = LogisticRegression(solver='liblinear')
-    model.fit(X_train_scaled, y_train)
+# Function to predict fraud
+def predict_transaction(input_data, model):
+    prediction = model.predict([input_data])
+    return prediction[0]
 
-    # Evaluate model
-    y_pred = model.predict(X_test_scaled)
-    print("Classification Report:")
-    print(classification_report(y_test, y_pred))
-
-    # Save model and scaler
-    joblib.dump(model, "model.pkl")
-    joblib.dump(scaler, "scaler.pkl")
-
-if __name__ == "__main__":
-    main()
