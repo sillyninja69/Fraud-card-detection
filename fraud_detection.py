@@ -17,6 +17,7 @@ if not os.path.exists("creditcard.csv"):
 df = pd.read_csv("creditcard.csv")
 print(df.head())
 print(df.columns)
+print(df.columns.tolist())
 
 # Separate features and target
 X = df.drop("Class", axis=1)
