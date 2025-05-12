@@ -100,4 +100,8 @@ def main():
     # Example usage: predict fraud for the first 5 samples
     sample_df = detector.load_dataset().head(5)
     print("\nPredictions for first 5 samples:")
-    preds = detector.predict_f
+    preds = detector.predict_fraud(sample_df)
+    print(preds)
+
+if __name__ == "__main__":
+    main()
