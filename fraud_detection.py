@@ -1,55 +1,93 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
-from imblearn.under_sampling import RandomUnderSampler
 import joblib
-import gdown
-import os
 
-# Download the dataset 
-if not os.path.exists("creditcard.csv"):
-    url = "https://drive.google.com/uc?id=1mD7t_kGWg9DThiEj5PJDxUuXlLFUYieC"
-    gdown.download(url, "creditcard.csv", quiet=False)
+# Load dataset
+def load_data(file_path):
+    try:
+        df = pd.read_csv(file_path)
+        print("Columns in DataFrame:", df.columns.tolist())  # Debug print to inspect columns
+        return df
+    except FileNotFoundError:
+        print("Error: The file was not found.")
+        raise
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        raise
 
-df = pd.read_csv("creditcard.csv")
-print(df.head())
-print(df.columns)
-print(df.columns.tolist())
-
-# Separate features and target
-X = df.drop("Class", axis=1)
-y = df["Class"]
-
-
-
-
-# Handle class imbalance using undersampling
-rus = RandomUnderSampler(random_state=42)
-X_resampled, y_resampled = rus.fit_resample(X, y)
-
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(
-    X_resampled, y_resampled, test_size=0.2, random_state=42
-)
-
-# Feature scaling
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+# Process data
+def process_data(df):
+    if "Class" not in df.columns:
+        raise KeyError("Column 'Class' not found in the dataset. Please check the file.")
+    
+    # Dropping the 'Class' column to separate features and labels
+    X = df.drop("Class", axis=1)
+    y = df["Class"]
+    
+    return X, y
 
 # Train model
-model = LogisticRegression()
-model.fit(X_train_scaled, y_train)
+def train_model(X, y):
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    
+    # Initialize a RandomForestClassifier
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    
+    # Train the model
+    model.fit(X_train, y_train)
+    
+    # Make predictions
+    y_pred = model.predict(X_test)
+    
+    # Print classification report
+    print("Classification Report:\n", classification_report(y_test, y_pred))
+    
+    return model
 
-# Evaluate model
-y_pred = model.predict(X_test_scaled)
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
+# Save the model
+def save_model(model, model_filename):
+    try:
+        joblib.dump(model, model_filename)
+        print(f"Model saved as {model_filename}")
+    except Exception as e:
+        print(f"Error saving model: {e}")
 
-# Save model and scaler
-joblib.dump(model, "model.pkl")
-joblib.dump(scaler, "scaler.pkl")
+# Load the trained model
+def load_model(model_filename):
+    try:
+        model = joblib.load(model_filename)
+        print(f"Model loaded from {model_filename}")
+        return model
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        raise
 
+# Make predictions
+def predict_transaction(model, transaction_data):
+    try:
+        prediction = model.predict(transaction_data)
+        return prediction
+    except Exception as e:
+        print(f"Error making prediction: {e}")
+        raise
+
+# Main function to tie everything together
+def main():
+    # Load dataset
+    df = load_data("creditcard.csv")
+    
+    # Process data
+    X, y = process_data(df)
+    
+    # Train model
+    model = train_model(X, y)
+    
+    # Save the model
+    save_model(model, "fraud_model.pkl")
+
+if __name__ == "__main__":
+    main()
