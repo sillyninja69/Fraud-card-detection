@@ -12,22 +12,14 @@ def main():
     # Input fields for user to enter transaction details
     st.subheader("Enter Transaction Details")
     amount = st.number_input("Transaction Amount (USD)", min_value=0.0, value=1.0, step=0.01)
-    v1 = st.number_input("V1", value=0.0, step=0.01)
-    v2 = st.number_input("V2", value=0.0, step=0.01)
-    v3 = st.number_input("V3", value=0.0, step=0.01)
-    # Add more input fields for V4 to V28 as needed
+
+    # Input fields for features V1 to V28
+    input_data = {"Amount": amount}
+    for i in range(1, 29):
+        input_data[f"V{i}"] = st.number_input(f"V{i}", value=0.0, step=0.01)
 
     # Create a button to make a prediction
     if st.button("Predict"):
-        # Prepare the input data for prediction
-        input_data = {
-            'V1': v1,
-            'V2': v2,
-            'V3': v3,
-            'Amount': amount
-            # Add more fields as necessary
-        }
-        
         # Convert the input data to a DataFrame
         input_df = pd.DataFrame([input_data])  # Convert to DataFrame
 
