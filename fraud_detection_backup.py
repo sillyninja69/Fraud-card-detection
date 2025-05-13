@@ -6,18 +6,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from imblearn.under_sampling import RandomUnderSampler
 import joblib
-import gdown
-import os
-
-# Download the dataset 
-if not os.path.exists("creditcard.csv"):
-    url = "https://drive.google.com/file/d/1mD7t_kGWg9DThiEj5PJDxUuXlLFUYieC/view?usp=drive_link"  
-    gdown.download(url, "creditcard.csv", quiet=False)
 
 # Load the dataset
 df = pd.read_csv("creditcard.csv")
 
-# Ensure we have the right features (30 features + 'Class')
+# Ensure data has all required features
 required_features = [f'V{i}' for i in range(1, 29)] + ['Amount', 'Class']
 if not all(feature in df.columns for feature in required_features):
     raise ValueError("Dataset does not have the required features.")
@@ -25,6 +18,10 @@ if not all(feature in df.columns for feature in required_features):
 # Separate features and target
 X = df.drop("Class", axis=1)
 y = df["Class"]
+
+# Enforce correct feature order
+feature_order = [f'V{i}' for i in range(1, 29)] + ['Amount']
+X = X[feature_order]
 
 # Handle class imbalance using undersampling
 rus = RandomUnderSampler(random_state=42)
@@ -40,6 +37,9 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+# Verify feature count
+print("Shape of X_train_scaled:", X_train_scaled.shape)
+
 # Train Random Forest model
 model = RandomForestClassifier(random_state=42)
 model.fit(X_train_scaled, y_train)
@@ -52,4 +52,5 @@ print(classification_report(y_test, y_pred))
 # Save model and scaler
 joblib.dump(model, "model.pkl")
 joblib.dump(scaler, "scaler.pkl")
+
 
