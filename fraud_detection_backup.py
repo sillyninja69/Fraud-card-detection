@@ -52,5 +52,3 @@ print(classification_report(y_test, y_pred))
 # Save model and scaler
 joblib.dump(model, "model.pkl")
 joblib.dump(scaler, "scaler.pkl")
-
-
